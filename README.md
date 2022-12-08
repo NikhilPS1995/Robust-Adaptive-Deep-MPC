@@ -10,19 +10,13 @@ unzip -o -q ipopt-linux64
 Additionally, make sure `numpy`, `pandas`, `matplotlib`, and `torch` are installed.
 
 ## Code Structure
-``data`` contains the generated offline data for training the dynamics model. It is not used by ``train.py`` but can be made so easily.
-
-``dynamic_models`` implement the proposed neural network architecture (i.e., with bounds and with decomposition) and various ablations.
-
-``mpc`` implements the analytic-based MPC based on ipopt as well as the heuristic-based MPC based on random shooting and CEM.
-
-``simulator`` implements the dynamics for a single-link robot manipulator under the dry friction model.
-
-``trained_models`` contains the weights for all trained models and figures.
-
-``utils`` contains some utility functions.
-
-``train.py`` and ``eval.py`` are the two core scripts for running training and evaluation respectively.
+- ``data`` contains the generated offline data for training the dynamics model. It is not used by ``train.py`` but can be made so easily.
+- ``dynamic_models`` implement the proposed neural network architecture (i.e., with bounds and with decomposition) and various ablations.
+- ``mpc`` implements the analytic-based MPC based on ipopt as well as the heuristic-based MPC based on random shooting and CEM.
+- ``simulator`` implements the dynamics for a single-link robot manipulator under the dry friction model.
+- ``trained_models`` contains the weights for all trained models and figures.
+- ``utils`` contains some utility functions.
+- ``train.py`` and ``eval.py`` are the two core scripts for running training and evaluation respectively.
 
 ## To Run the Code
 ```
@@ -38,4 +32,4 @@ python train.py
 ```
 python eval.py
 ```
-``eval.py`` loads the trained models, and evaluates the performance on the simulator with different MPC controller, as implemented in the ``mpc`` folder.
+``eval.py`` loads the trained models, and evaluates the performance on the simulator with different MPC controller, as implemented in the ``mpc`` folder. All figures are saved in the ``trained_models`` folder.
