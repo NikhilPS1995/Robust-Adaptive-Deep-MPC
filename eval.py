@@ -3,13 +3,14 @@ import matplotlib.pyplot as plt
 import os.path as osp
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from simulator_data_gen import generate_dataset
-from dataset import SimDataset
-from utils import torchify
-from simulator_data_gen import *
-from analytic_mpc import solve_cftoc, LinearDynamicsModel
-from heuristic_mpc import MPCPolicyBaseline
+from utils.utils import torchify
+from simulator.simulator_data_gen import *
+from mpc.analytic_mpc import solve_cftoc, LinearDynamicsModel
+from mpc.heuristic_mpc import MPCPolicyBaseline
+from dynamic_models.unbounded_model import DynamicsModelUnbounded
+from dynamic_models.baseline import DynamicsModelBaseline
+from dynamic_models.bounded_baseline import DynamicsModelBoundedBaseline
+from dynamic_models.model import DynamicsModel
 
 
 def DynamicsAdapter(mlp, histories, numGDSteps, baseline=False):
@@ -123,7 +124,7 @@ def MPC(dynModel, numGDSteps, R,P, N, M, x0 ,xg, nx, nu, uL, uU, mlp, mpc_baseli
 
 if __name__ == "__main__":
     device = "cuda" if torch.cuda.is_available() else "cpu"
-    PATH = "./"
+    PATH = "./trained_models/"
     
     nx = 2
     nu = 1
@@ -140,12 +141,19 @@ if __name__ == "__main__":
     
     mlp = DynamicsModel()
     mlp.load_state_dict(torch.load(PATH + "mlp.pt"))
+    mlp.to(device)
+    
     mlp_baseline = DynamicsModelBaseline()
     mlp_baseline.load_state_dict(torch.load(PATH + "mlp_baseline.pt"))
+    mlp_baseline.to(device)
+    
     mlp_bounded_baseline = DynamicsModelBoundedBaseline()
     mlp_bounded_baseline.load_state_dict(torch.load(PATH + "mlp_bounded_baseline.pt"))
+    mlp_bounded_baseline.to(device)
+    
     mlp_unbounded = DynamicsModelUnbounded()
     mlp_unbounded.load_state_dict(torch.load(PATH + "mlp_unbounded.pt"))
+    mlp_unbounded.to(device)
     optimizer = torch.optim.Adam(mlp.parameters(), lr=1e-4)
     # scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=100 * numGDSteps, gamma=0.5)
     
@@ -213,7 +221,8 @@ if __name__ == "__main__":
     plt.ylabel('Dynamics Prediction Error (L1)', fontsize=14)
     plt.grid()
     plt.savefig(osp.join(PATH, "execution_error.png"), dpi=400, bbox_inches='tight')
-    plt.show()
+    # plt.show()
+    plt.clf()
     
     # Plot state trajectory (position) during execution
     plt.plot(time_vec, xReal_baseline_with_mlp_bounded_baseline[0, :], label='W/O Bounds, W/O Decomposition, Heuristic MPC')
@@ -228,7 +237,8 @@ if __name__ == "__main__":
     plt.legend()
     plt.grid()
     plt.savefig(osp.join(PATH, "execution_x1.png"), dpi=400, bbox_inches='tight')
-    plt.show()
+    # plt.show()
+    plt.clf()
     
     # Plot state trajectory (velocity) during execution
     plt.plot(time_vec, xReal_baseline_with_mlp_bounded_baseline[1, :], label='W/O Bounds, W/O Decomposition, Heuristic MPC')
@@ -243,7 +253,8 @@ if __name__ == "__main__":
     plt.legend()
     plt.grid()
     plt.savefig(osp.join(PATH, "execution_x2.png"), dpi=400, bbox_inches='tight')
-    plt.show()
+    # plt.show()
+    plt.clf()
     
     # Plot x1 vs x2 during execution
     plt.plot(xReal_baseline_with_mlp_bounded_baseline[0, :], xReal_baseline_with_mlp_bounded_baseline[1, :], label='W/O Bounds, W/O Decomposition, Heuristic MPC')
@@ -259,4 +270,5 @@ if __name__ == "__main__":
     plt.legend()
     plt.grid()
     plt.savefig(osp.join(PATH, "execution_x1_x2.png"), dpi=400, bbox_inches='tight')
-    plt.show()
+    # plt.show()
+    plt.clf()

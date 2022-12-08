@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from utils import torchify
+from utils.utils import torchify
 
 class SimDataset:
     def __init__(self, xt, wt, ut, fU_t, fL_t, gU_t, gL_t, fBU_t, fBL_t, x_tp1, w_tp1):
